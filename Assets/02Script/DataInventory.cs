@@ -23,6 +23,7 @@ public class DataInventory // 게임매니저 (싱글톤)=> 저장 & 로드가 원활이 되게
     {
         get => curItemCount;
         set => curItemCount = value;
+        
     }
     [SerializeField]
     private List<InventoryItemData> items = new List<InventoryItemData>();
