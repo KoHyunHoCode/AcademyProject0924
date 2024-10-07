@@ -9,9 +9,28 @@ using UnityEngine;
 
 public class AG_CharacterController : MonoBehaviour
 {
-    #region _SerializeField_
-    [SerializeField] private float moveSpeed = 2f;
+# region _SerializeField_
+    [SerializeField] private float moveSpeed = 6f;
     #endregion
+
+    #region _Private_
+    //private Vector3 moveDelta;
+    //private Animator anims;
+    private CharacterController controller;
+    private Vector3 camForward;
+    private Vector3 camRight;
+
+    private GameObject obj;
+    private FixedJoystick joystick; // joystickpack 에셋에서 제공
+
+
+    //private static int animsParam_IsMove = Animator.StringToHash("IsMove");
+    #endregion
+
+
+   
+    
+    
 
     #region _Private_
     private Vector3 moveDelta;
@@ -33,22 +52,55 @@ public class AG_CharacterController : MonoBehaviour
     private void Awake()
     {
         TryGetComponent<Animator>(out anims);
+        TryGetComponent<CharacterController>(out controller);
+
+        obj = GameObject.Find("Joystick");
+        if(obj != null)
+        {
+            obj.TryGetComponent<FixedJoystick>(out joystick);
+        }
+
     }
 
     private void Update()
     {
-        moveDelta.x = Input.GetAxisRaw("Horizontal");
+        //키보드 인풋처리
+        moveDelta.x = Input.GetAxis("Horizontal");
         moveDelta.y = 0f;
-        moveDelta.z = Input.GetAxisRaw("Vertical");
+        moveDelta.z = Input.GetAxis("Vertical");
+        // UI 조이스틱을 통한 인풋 처리
+
+        moveDelta.x += joystick.Horizontal;
+        moveDelta.y += joystick.Vertical;
+
         // 정규화 
         moveDelta.Normalize();
 
-        moveDelta *= (moveSpeed * Time.deltaTime);
+        //카메라의 방향 데이터
+        camForward = Camera.main.transform.forward;
+        camForward.y = 0;
 
-        transform.Translate(moveDelta);
-        //transform.LookAt(transform.position + moveDelta);
-        //anims.SetBool("IsMove", moveDelta != Vector3.zero);// 12바이트 
+        camRight = Camera.main.transform.right;
+        camRight.y = 0f;
+
+        camForward.Normalize();
+        camRight.Normalize();
+
+        // 카메라 기준으로 입력값을 적용.
+        moveDelta = camForward * moveDelta.z + camRight * moveDelta.x;
+        moveDelta.Normalize();
+
+        //캐릭터 이동
+        controller.Move(moveDelta * (moveSpeed * Time.deltaTime));
+
+        // 캐릭터의 회전
+        if (moveDelta != Vector3.zero)
+            transform.forward = moveDelta;
+
+        
         anims.SetBool(animsParam_IsMove, moveDelta != Vector3.zero); //  4
+
+        
     }
 
 }
