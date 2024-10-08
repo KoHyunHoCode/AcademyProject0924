@@ -34,10 +34,10 @@ public class UIItemShopSlot : MonoBehaviour
     {
         get => totalGold;   
     }
-    private int pricegold;
-    private int tradeMaxCount;
-    private int curCount;
-    private int itemID;
+    private int priceGold; // 단가 (1개의 가격)
+    private int tradeMaxCount; // 거래할수 있는 최대 갯수.
+    private int curCount; // 거래 대상이 되는 아이템의 갯수.
+    private int itemID; // 테이블 id 값
 
     private GameObject obj;
 
@@ -94,36 +94,73 @@ public class UIItemShopSlot : MonoBehaviour
     }
     public void OnClick_UPBTN()
     {
-
+        if (curCount < tradeMaxCount)
+            curCount++;
+        tradeCountText.text = curCount.ToString();
+        totalGold = curCount * priceGold;
     }
     public void OnClick_DOWNBTN()
     {
+        if (curCount > 0)
+            curCount--;
 
+        // UI  갱신
+        tradeCountText.text = curCount.ToString();
+        totalGold = curCount * priceGold;
     }
     public void OnClick_MaxBTN()
     {
-
+        curCount = tradeMaxCount;
+        tradeCountText.text = curCount.ToString();
+        totalGold = curCount * priceGold;
+        // todo
     }
-
+    //슬롯이 최초로 생성이 될때
     public void CreateSlot(Popup_ItemShop shop, int index)
     {
-
+        shopPopub = shop;
+        slotIndex = index;
+        gameObject.SetActive(false);
     }
+
+    //판매, 구매할때
     public void RefreshSlot(InventoryItemData itemInfo)
     {
+        gameObject.SetActive(true);
+        itemID = itemInfo.itemID;
+        tradeMaxCount = itemInfo.amount;
+        curCount = 0;
+        tradeCountText.text = curCount.ToString();
 
+        if(!DataManager.Inst.GetItemData(itemID,out ItemData_Entity  itemData))
+        {
+            Debug.Log("UI ItemShopSlot.cs - RefreshSlot() - itemData 탐색실패");
+            return;
+        }
+
+        icon.sprite = Resources.Load<Sprite>(itemData.iconlmg);
+        icon.enabled = true;
+        itemPrice.text = itemData.sellGold.ToString();
+        priceGold = itemData.sellGold;
     }
     public void ClearSlot()
     {
-
+        gameObject.SetActive(!false);
     }
-    //public bool GetSellCount(out int _sellltemID, out int _sellCount, out int sellGold)
-    //{
-    //    return true;
-    //}
+    public bool GetSellCount(out int _sellltemID, out int _sellCount, out int sellGold)
+    {
+        _sellltemID = itemID;
+        _sellCount = curCount;
+        sellGold = totalGold;
+        
+        return true;
+    }
 
-    //public bool GetBuyCount(out int _buyitemID, out int _buyCount, out int _buyGold)
-    //{
-    //    return true;
-    //}
+    public bool GetBuyCount(out int _buyitemID, out int _buyCount, out int _buyGold)
+    {
+        _buyitemID = itemID;
+        _buyCount = curCount;
+        _buyGold = totalGold;
+        return true;
+    }
 }
