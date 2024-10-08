@@ -98,6 +98,9 @@ public class UIItemShopSlot : MonoBehaviour
             curCount++;
         tradeCountText.text = curCount.ToString();
         totalGold = curCount * priceGold;
+
+        //todo 수치 변경 전달
+        shopPopub.RefreshGold();
     }
     public void OnClick_DOWNBTN()
     {
@@ -107,6 +110,7 @@ public class UIItemShopSlot : MonoBehaviour
         // UI  갱신
         tradeCountText.text = curCount.ToString();
         totalGold = curCount * priceGold;
+        shopPopub.RefreshGold();
     }
     public void OnClick_MaxBTN()
     {
@@ -114,6 +118,7 @@ public class UIItemShopSlot : MonoBehaviour
         tradeCountText.text = curCount.ToString();
         totalGold = curCount * priceGold;
         // todo
+        shopPopub.RefreshGold();
     }
     //슬롯이 최초로 생성이 될때
     public void CreateSlot(Popup_ItemShop shop, int index)
